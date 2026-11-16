@@ -5,7 +5,7 @@ import { BookingStatus, Ibooking, paymentStatus } from "@/model/booking.model";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Zap } from "lucide-react";
+import { ChevronUp, Zap } from "lucide-react";
 import { Pane } from "react-leaflet";
 import PanelContents from "@/components/PanelContents";
 
@@ -84,27 +84,24 @@ const Page = () => {
     },
   };
 
-  const PAYMENT_BADGE: Record<
-  paymentStatus,
-  { label: string; cls: string }
-> = {
-  pending: {
-    label: "Pending",
-    cls: "bg-amber-100 text-amber-700",
-  },
-  paid: {
-    label: "Paid",
-    cls: "bg-emerald-100 text-emerald-700",
-  },
-  cash: {
-    label: "Cash",
-    cls: "bg-zinc-100 text-zinc-700",
-  },
-  failed: {
-    label: "Failed",
-    cls: "bg-red-100 text-red-700",
-  },
-};
+  const PAYMENT_BADGE: Record<paymentStatus, { label: string; cls: string }> = {
+    pending: {
+      label: "Pending",
+      cls: "bg-amber-100 text-amber-700",
+    },
+    paid: {
+      label: "Paid",
+      cls: "bg-emerald-100 text-emerald-700",
+    },
+    cash: {
+      label: "Cash",
+      cls: "bg-zinc-100 text-zinc-700",
+    },
+    failed: {
+      label: "Failed",
+      cls: "bg-red-100 text-red-700",
+    },
+  };
 
   const [activeBookings, setActiveBookings] = useState<Ibooking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -113,7 +110,9 @@ const Page = () => {
   const [drop, setDrop] = useState<[number, number] | null>(null);
 
   const [status, setStatus] = useState<BookingStatus>("confirmed");
-  const [chatOpen,setChatOpen]=useState(false)
+  const [chatOpen, setChatOpen] = useState(false);
+  //ye state mobile ke case ke liye banai hai
+  const [expanded, setExpanded] = useState(false);
 
   //ab mujhe ye neeche ki chaaro cheeze chaiye toh ye active ride page pe toh calculate nahi hoskti toh isliye hum isse liveRideMap page pe bhejenge ek onStats function ke through
 
@@ -122,9 +121,9 @@ const Page = () => {
   const [etaToPickUp, setEtaToPickUp] = useState<number | null>(0);
   const [etaToDrop, setEtaToDrop] = useState<number | null>(0);
 
-  const onChatToggle=()=>{
-    setChatOpen(prev=>!prev)
-  }
+  const onChatToggle = () => {
+    setChatOpen((prev) => !prev);
+  };
 
   useEffect(() => {
     const getActiveRides = async () => {
@@ -165,9 +164,10 @@ const Page = () => {
   }, []);
 
   const cfg = STATUS_LABEL[activeBookings[0]?.bookingStatus ?? "confirmed"];
-  const paymentStatus=PAYMENT_BADGE[activeBookings[0]?.paymentStatus ?? "pending"]
+  const paymentStatus =
+    PAYMENT_BADGE[activeBookings[0]?.paymentStatus ?? "pending"];
   const isActive = ["confirmed", "started"].includes(status);
-  const canChat=activeBookings[0]?.bookingStatus==="confirmed"
+  const canChat = activeBookings[0]?.bookingStatus === "confirmed";
 
   //agr hum arriving hai toh hume pickup wali duration aur distance dikhani hai aur agr arriving nahi hai toh drop wali distance aurr duration dikhani hai toh ye maintain krne ke liye ek flag bana neeche
 
@@ -281,13 +281,96 @@ const Page = () => {
         </div>
 
         <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="flex-1 overflow-y-auto scrollbar-hide">
-              <PanelContents
-              props={{isActive,displayDist,displayEta,status,cfg,activeBookings,paymentStatus,canChat,chatOpen,onChatToggle}}
-              />
-            </div>
+          <div className="flex-1 overflow-y-auto scrollbar-hide">
+            <PanelContents
+              props={{
+                isActive,
+                displayDist,
+                displayEta,
+                status,
+                cfg,
+                activeBookings,
+                paymentStatus,
+                canChat,
+                chatOpen,
+                onChatToggle,
+                currentRole: "driver",
+              }}
+            />
+          </div>
         </div>
       </motion.div>
+
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
+        <motion.div
+          className="bg-white rounded-t-3xl shadow-2xl pointer-events-auto overflow-hidden flex flex-col"
+          animate={{ height: expanded ? "82vh" : 142 }}
+          transition={{ type: "spring", stiffness: 320, damping: 38 }}
+        >
+          <div
+            className="flex-shrink-0 cursor-pointer select-none"
+            onClick={() => setExpanded((prev) => !prev)}
+          >
+            <div className="pt-3 pb-1">
+              <div className="w-10 h-1 bg-zinc-200 rounded-full mx-auto" />
+            </div>
+
+            <div className="px-5 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span
+                  className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${cfg.dot}`}
+                />
+
+                <div>
+                  <p className="text-sm font-bold text-zinc-900 leading-tight">
+                    {cfg.label}
+                  </p>
+
+                  <p className="text-xs text-zinc-400 leading-tight">
+                    {cfg.sublabel}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                {isActive && (
+                  <div className="text-right">
+                    <p className="text-2xl text-zinc-900 font-black leading-none">
+                      {displayEta !== null
+                        ? `${Math.round(displayEta)} min`
+                        : "--"}
+                    </p>
+                  </div>
+                )}
+                <motion.div
+                  animate={{ rotate: expanded ? 180 : 0 }}
+                  transition={{ duration: 0.28 }}
+                  className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center"
+                >
+                  <ChevronUp size={16} className="text-zinc-600" />
+                </motion.div>
+              </div>
+            </div>
+            <div className="h-px bg-zinc-300 mt-5"/>
+          </div>
+          <div className="flex-1 overflow-y-auto min-h-0">
+            <PanelContents
+              props={{
+                isActive,
+                displayDist,
+                displayEta,
+                status,
+                cfg,
+                activeBookings,
+                paymentStatus,
+                canChat,
+                chatOpen,
+                onChatToggle,
+                currentRole: "driver",
+              }}
+            />
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 };

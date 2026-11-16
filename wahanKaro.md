@@ -700,3 +700,9 @@ isme sabse pehle ham send api banayenge jaake dekh jisme hamara message create h
 ab doosri api banayenge get-all jisme saare message get krenge
 
 ab hum ek api banayenge ai-suggestions ke liye aur isme ham gemini ki api ka use krenge
+ye api bhi design hogy ab chat ki saari api's ko chalke fetch kr apne ride chat ke component mein dekh jaae usse pehle kuch states bhi bnani padegi woh bhi dekh
+
+sara kuch hone ke baad meri ai suggestions api kaam nahi krrhi thi kyunki uska response nikalne ka alg treeka tha jiss model ko mein use krrha hu aur mein virtual code ke gemini model ke hisaab se response nikal rha tha isliye api ko complete gpt se banwake le aaya mein
+
+ab hogya hamara ai chat box complete aur ab hum chalenge apne iss active ride page ko responsive banane ki taraf
+isme ham ek state banayenge active-ride page mein expanded,setExpanded banake agr expanded true hoga toh hamara mobile mien 82vh tak white div dikhega jisme saari details hongi aur agr false hoga toh sirf 142 px tk dikhega

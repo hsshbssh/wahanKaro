@@ -2,11 +2,11 @@ import connectDb from "@/lib/db"
 import ChatMessage from "@/model/chat.model"
 import { NextRequest, NextResponse } from "next/server"
 
-export const GET=async(req:NextRequest)=>{
+export const POST=async(req:NextRequest)=>{
     try {
         await connectDb()
         const {bookingId}=await req.json()
-        const messages=await ChatMessage.find({bookingId}).sort({createdAt:-1}) //saare messages find kro iss particcular bookingId se {aur createdAt -1 ka mtlb hai ki sbse naye messages ko sabse upr sort krdo}
+        const messages=await ChatMessage.find({bookingId})//saare messages find kro iss particcular bookingId se
 
         if(messages){
             return NextResponse.json(

@@ -16,6 +16,7 @@ export const POST=async(req:NextRequest)=>{
             )
         }
     } catch (error) {
+        console.log(`send message error ${error}`)
         return NextResponse.json(
             {message:`send chat error ${error}`},
             {status:500}
