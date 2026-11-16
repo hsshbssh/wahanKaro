@@ -706,3 +706,6 @@ sara kuch hone ke baad meri ai suggestions api kaam nahi krrhi thi kyunki uska r
 
 ab hogya hamara ai chat box complete aur ab hum chalenge apne iss active ride page ko responsive banane ki taraf
 isme ham ek state banayenge active-ride page mein expanded,setExpanded banake agr expanded true hoga toh hamara mobile mien 82vh tak white div dikhega jisme saari details hongi aur agr false hoga toh sirf 142 px tk dikhega
+
+hamne responsive bhi banadiya hai ab apna active ride page toh ab hame same active ride ka page user ke liye bhi banana hai toh poora copy krke user wale mein paste karde
+but user ke paas toh bhot saari booking ho toh bookingId ke basis pe active ride page show krna hoga

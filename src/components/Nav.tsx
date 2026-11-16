@@ -66,7 +66,7 @@ const Nav = () => {
 
       <ul className="hidden md:flex items-center gap-8 text-white font-medium">
         {menuItems.map((item, i) => {
-          const href = item === "Home" ? "/" : `/${item.toLowerCase()}`;
+          const href = item === "Home" ? "/" : `/user/${item.toLowerCase()}`;
 
           const isActive = pathname === href;
 
@@ -228,7 +228,7 @@ const Nav = () => {
           {/* MOBILE LINKS */}
 
           {menuItems.map((item, i) => {
-            const href = item === "Home" ? "/" : `/${item.toLowerCase()}`;
+            const href = item === "Home" ? "/" : `/user/${item.toLowerCase()}`;
 
             const isActive = pathname === href;
 
