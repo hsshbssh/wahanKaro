@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { ChevronUp, Zap } from "lucide-react";
 import { Pane } from "react-leaflet";
 import PanelContents from "@/components/PanelContents";
+import { getSocketIo } from "@/lib/socket";
 
 const Page = () => {
   const MAP_STATUS: Record<
@@ -178,11 +179,21 @@ const Page = () => {
   //finding drivers position
   useEffect(() => {
     if (!navigator.geolocation) return;
+
+    const socket = getSocketIo();
+
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
         setDriverPos([lat, lng]); //pehle latitude hoga fir longitude hoga
+
+        socket.emit("driver-position-update", {
+          bookingId: activeBookings[0]._id,
+          longitude: lng,
+          latitude: lat,
+          status: status,
+        });
       },
       (error) => {
         console.log(`Gps Error in active-rides ${error}`);
@@ -190,8 +201,23 @@ const Page = () => {
       { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 },
     );
 
+    const bookingId = activeBookings[0]?._id;
+    useEffect(() => {
+      if (!bookingId) {
+        console.log("Partner: Booking ID not available");
+        return;
+      }
+
+      const socket = getSocketIo();
+
+      console.log("Partner socket connected:", socket.connected);
+      console.log("Partner emitting join-room:", bookingId);
+
+      socket.emit("join-room", { bookingId });
+    }, [bookingId]);
     return () => {
       navigator.geolocation.clearWatch(watchId);
+      socket.off("join-room");
     }; // jab useEffect return ho toh watchId clear hojaaye (important)
   }, []);
 
@@ -350,7 +376,7 @@ const Page = () => {
                 </motion.div>
               </div>
             </div>
-            <div className="h-px bg-zinc-300 mt-5"/>
+            <div className="h-px bg-zinc-300 mt-5" />
           </div>
           <div className="flex-1 overflow-y-auto min-h-0">
             <PanelContents

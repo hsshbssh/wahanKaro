@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { ChevronUp, Zap } from "lucide-react";
 import PanelContents from "@/components/PanelContents";
 import { useParams } from "next/navigation";
+import { getSocketIo } from "@/lib/socket";
 
 const Page = () => {
   const { id } = useParams<{ id: string }>();
@@ -132,8 +133,8 @@ const Page = () => {
       try {
         setLoading(true);
 
-        const { data } = await axios.post('/api/user/my-active',{
-            bookingId:id
+        const { data } = await axios.post("/api/user/my-active", {
+          bookingId: id,
         });
 
         if (data.success) {
@@ -189,24 +190,40 @@ const Page = () => {
     status === "confirmed" ? distanceToPickUp : distanceToDrop;
 
   //finding drivers position
-  useEffect(() => {
-    if (!navigator.geolocation) return;
-    const watchId = navigator.geolocation.watchPosition(
-      (pos) => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        setDriverPos([lat, lng]); //pehle latitude hoga fir longitude hoga
-      },
-      (error) => {
-        console.log(`Gps Error in active-rides ${error}`);
-      },
-      { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 },
-    );
+  //user ke active-rides mein aise position find kroge toh user ki position milegi naaki driver ki toh uske liye iske neeche dekh kya krna hai
 
-    return () => {
-      navigator.geolocation.clearWatch(watchId);
-    }; // jab useEffect return ho toh watchId clear hojaaye (important)
-  }, []);
+  // useEffect(() => {
+  //   if (!navigator.geolocation) return;
+  //   const watchId = navigator.geolocation.watchPosition(
+  //     (pos) => {
+  //       const lat = pos.coords.latitude;
+  //       const lng = pos.coords.longitude;
+  //       setDriverPos([lat, lng]); //pehle latitude hoga fir longitude hoga
+  //     },
+  //     (error) => {
+  //       console.log(`Gps Error in active-rides ${error}`);
+  //     },
+  //     { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 },
+  //   );
+
+  //   return () => {
+  //     navigator.geolocation.clearWatch(watchId);
+  //   }; // jab useEffect return ho toh watchId clear hojaaye (important)
+  // }, []);
+
+  useEffect(() => {
+    if (!id) {
+      console.log("User: Booking ID not available");
+      return;
+    }
+
+    const socket = getSocketIo();
+
+    console.log("User socket connected:", socket.connected);
+    console.log("User emitting join-room:", id);
+
+    socket.emit("join-room", { bookingId: id });
+  }, [id]);
 
   if (loading) {
     return (
@@ -363,7 +380,7 @@ const Page = () => {
                 </motion.div>
               </div>
             </div>
-            <div className="h-px bg-zinc-300 mt-5"/>
+            <div className="h-px bg-zinc-300 mt-5" />
           </div>
           <div className="flex-1 overflow-y-auto min-h-0">
             <PanelContents

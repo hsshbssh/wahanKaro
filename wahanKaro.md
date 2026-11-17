@@ -709,3 +709,12 @@ isme ham ek state banayenge active-ride page mein expanded,setExpanded banake ag
 
 hamne responsive bhi banadiya hai ab apna active ride page toh ab hame same active ride ka page user ke liye bhi banana hai toh poora copy krke user wale mein paste karde
 but user ke paas toh bhot saari booking ho toh bookingId ke basis pe active ride page show krna hoga
+
+ab humne user ke liye bhi active-rides design krliya hai but abhi isme ek major point baaki hai
+hamare partner ke active-rides mein ham drive ki pos ke liye useffect ke andr wahi navigator.geolocation ka use krrhe the
+but user ke case mein driver ki pos ke liye hame use krna hoga socket.io ka taaki real time driver ki position user ko dikhe aur pata chale ki driver kaha tak phocha
+iske liye partner ki ative ride pe chalo aur uske useeffect ke andr ek event emit kro jisme ham lon,lat bookingId,bookingStatus bhejenge aur usse user pe aake listen karlo
+
+ye nahi krna hai balki ham user aur partner dono ko ek hi room mein join krwadenge same bookingId wale
+iske liye sabse pehle user se ek join-room karke event emit karenge aur similarly partner se bhi aur ye ham dono ke active-ride page pe hi krenge useeffect ke andr
+ab jab dono jagah se event emit krdiya hai toh inhe ek common place pe listen bhi krna padega toh iske liye go to socketServer folder aur uski index.js mein iss event ko listen krlo
