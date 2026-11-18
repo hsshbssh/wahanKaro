@@ -218,11 +218,16 @@ const Page = () => {
     }
 
     const socket = getSocketIo();
-
-    console.log("User socket connected:", socket.connected);
-    console.log("User emitting join-room:", id);
-
     socket.emit("join-room", { bookingId: id });
+
+    socket.on("driver-location",({latitude,longitude})=>{
+      setDriverPos([latitude,longitude])
+    })
+
+    return ()=>{
+      socket.off("join-room")
+      socket.off("driver-location")
+    }
   }, [id]);
 
   if (loading) {
@@ -395,7 +400,7 @@ const Page = () => {
                 canChat,
                 chatOpen,
                 onChatToggle,
-                currentRole: "driver",
+                currentRole: "user",
               }}
             />
           </div>

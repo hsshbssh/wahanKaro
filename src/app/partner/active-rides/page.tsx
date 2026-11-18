@@ -176,9 +176,11 @@ const Page = () => {
   const displayDist =
     status === "confirmed" ? distanceToPickUp : distanceToDrop;
 
+  const bookingId = activeBookings[0]?._id;
+
   //finding drivers position
   useEffect(() => {
-    if (!navigator.geolocation) return;
+    if (!bookingId || !navigator.geolocation) return;
 
     const socket = getSocketIo();
 
@@ -189,7 +191,7 @@ const Page = () => {
         setDriverPos([lat, lng]); //pehle latitude hoga fir longitude hoga
 
         socket.emit("driver-position-update", {
-          bookingId: activeBookings[0]._id,
+          bookingId,
           longitude: lng,
           latitude: lat,
           status: status,
@@ -201,25 +203,28 @@ const Page = () => {
       { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 },
     );
 
-    const bookingId = activeBookings[0]?._id;
-    useEffect(() => {
-      if (!bookingId) {
-        console.log("Partner: Booking ID not available");
-        return;
-      }
-
-      const socket = getSocketIo();
-
-      console.log("Partner socket connected:", socket.connected);
-      console.log("Partner emitting join-room:", bookingId);
-
-      socket.emit("join-room", { bookingId });
-    }, [bookingId]);
     return () => {
       navigator.geolocation.clearWatch(watchId);
-      socket.off("join-room");
     }; // jab useEffect return ho toh watchId clear hojaaye (important)
-  }, []);
+  }, [bookingId, status]);
+
+  useEffect(() => {
+    if (!bookingId) {
+      console.log("Partner: Booking ID not available");
+      return;
+    }
+
+    const socket = getSocketIo();
+    socket.emit("join-room", { bookingId });
+    socket.on("driver-location",({latitude,longitude})=>{
+      setDriverPos([latitude,longitude])
+    })
+
+    return ()=>{
+      socket.off("join-room")
+      socket.off("driver-location")
+    }
+  }, [bookingId]);
 
   if (loading) {
     return (

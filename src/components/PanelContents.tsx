@@ -126,7 +126,7 @@ const PanelContents = ({ props }: any) => {
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-white font-bold text-base truncate">
-                  {activeBookings[0].user.name || "customer"}
+                  {activeBookings.length>0 ?activeBookings[0].user.name || "customer":activeBookings.user.name || "Driver"}
                 </p>
                 <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full flex-shrink-0">
                   <IndianRupee size={10} className="bg-amber-400" />

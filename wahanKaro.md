@@ -718,3 +718,6 @@ iske liye partner ki ative ride pe chalo aur uske useeffect ke andr ek event emi
 ye nahi krna hai balki ham user aur partner dono ko ek hi room mein join krwadenge same bookingId wale
 iske liye sabse pehle user se ek join-room karke event emit karenge aur similarly partner se bhi aur ye ham dono ke active-ride page pe hi krenge useeffect ke andr
 ab jab dono jagah se event emit krdiya hai toh inhe ek common place pe listen bhi krna padega toh iske liye go to socketServer folder aur uski index.js mein iss event ko listen krlo
+
+aage ka socket.io ki md mein dekh
+ab room se joh event emit kiya hai usse hamne user mein aur partner dono mein listen krliya jisse hume driver ki update location milegi
