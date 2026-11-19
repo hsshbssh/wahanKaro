@@ -9,6 +9,7 @@ import { ChevronUp, Zap } from "lucide-react";
 import PanelContents from "@/components/PanelContents";
 import { useParams } from "next/navigation";
 import { getSocketIo } from "@/lib/socket";
+import UserOtpPanel from "@/components/UserOtpPanel";
 
 const Page = () => {
   const { id } = useParams<{ id: string }>();
@@ -124,6 +125,10 @@ const Page = () => {
   const [etaToPickUp, setEtaToPickUp] = useState<number | null>(0);
   const [etaToDrop, setEtaToDrop] = useState<number | null>(0);
 
+  //otps set krwayenge
+  const [pickUpOtp, setPickUpOtp] = useState("");
+  const [dropOtp, setDropOtp] = useState("");
+
   const onChatToggle = () => {
     setChatOpen((prev) => !prev);
   };
@@ -220,15 +225,43 @@ const Page = () => {
     const socket = getSocketIo();
     socket.emit("join-room", { bookingId: id });
 
-    socket.on("driver-location",({latitude,longitude})=>{
-      setDriverPos([latitude,longitude])
-    })
+    socket.on("driver-location", ({ latitude, longitude }) => {
+      setDriverPos([latitude, longitude]);
+    });
 
-    return ()=>{
-      socket.off("join-room")
-      socket.off("driver-location")
-    }
+    return () => {
+      socket.off("join-room");
+      socket.off("driver-location");
+    };
   }, [id]);
+
+  //fetching PickUpOtp and dropOtp
+  useEffect(() => {
+    const fetchPickUpOtp = async () => {
+      try {
+        const { data } = await axios.post(
+          "/api/otp/pickup/create",
+          activeBookings[0]._id,
+        );
+        setPickUp(data);
+      } catch (error) {
+        console.log(`fetching PickUp Otp error ${error}`);
+      }
+    };
+    fetchPickUpOtp();
+  }, []);
+
+  useEffect(() => {
+    const fetchDropOtp = async () => {
+      try {
+        const {data}=await axios.post('/api/otp/drop/create',activeBookings[0]._id)
+        setDropOtp(data)
+      } catch (error) {
+        console.log(`fetching Drop Otp error ${error}`)
+      }
+    };
+    fetchDropOtp
+  }, []);
 
   if (loading) {
     return (
@@ -403,6 +436,9 @@ const Page = () => {
                 currentRole: "user",
               }}
             />
+          </div>
+          <div className="flex-1 overflow-y-auto min-h-0">
+            <UserOtpPanel pickUpOtp={""} dropOtp={""} />
           </div>
         </motion.div>
       </div>

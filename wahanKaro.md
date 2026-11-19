@@ -736,3 +736,5 @@ Ab: chat khulte hi ride-${bookingId} room join hota hai; socket reconnect ho toh
 ab meine ride CHat mien ek messagesEndRef karke element banaya jiski wajah se chat khulte hi end mein phoch jaaegi jaake dekhle 
 
 AB HUM BANAYEGE AGLI FUNCTIONALITY JOH KI HOGI PICKUP AND DROP FUNCTIONALITY
+
+ek jagah fas gaya hu ki agr otp expire hogya ya regenerate krna hua otp toh kaise karwaunga 
