@@ -3,7 +3,7 @@
 import { RootState } from "@/redux/store";
 import axios from "axios";
 import { Send, Sparkles, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import { getSocketIo } from "@/lib/socket";
@@ -27,6 +27,7 @@ const RideChat = ({ currentRole, bookingId, username, driverName }: any) => {
   //ek state banani hogi jiske click pe mein ai suggestions ko toggle krsku
   const [showAI, setShowAI] = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
+  const messagesEndRef=useRef<HTMLDivElement>(null)
   const { userData } = useSelector((state: RootState) => state.user);
 
   const formatTime = (dateInput: Date | string) => {
@@ -34,6 +35,10 @@ const RideChat = ({ currentRole, bookingId, username, driverName }: any) => {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
+  //useefect taaki chat khulte hi end mein aajaye
+  useEffect(()=>{
+    messagesEndRef.current?.scrollIntoView({behavior:"smooth"})
+  },[messages])
   //message send krne ke liye api call krdete hai pehle
   const sendMessage = async () => {
     if (!text.trim()) return;
@@ -217,6 +222,8 @@ const getAiSuggestions = async () => {
               </motion.div>
             );
           })}
+          {/* ek div bana rha hu jiski help se ham chat khulte hi chat ke end mein phoch jaaye */}
+          <div ref={messagesEndRef}/>
       </div>
 
       {showAI && messages.length > 0 && (

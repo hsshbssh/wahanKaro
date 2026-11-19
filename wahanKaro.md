@@ -732,3 +732,7 @@ ab waha pe meine isse listen krke room ke members ke liye event emit krdiya hai 
 bhot bhot bhot issue face krna pada mujhereal time mei communicate krwane ke liye but mujhse nhi hua toh meine copilot se fix krwaya aur ye issue tha
 Pehle: chat component chat-message-update sunta tha, par chat khulne par room join nahi karta tha aur disconnect/reconnect ke baad dobara join nahi karta tha. Isliye server update bheje bhi, toh client room mein na ho sakta tha.
 Ab: chat khulte hi ride-${bookingId} room join hota hai; socket reconnect ho toh room dobara join hota hai. Listener booking ID bhi check karta hai, aur cleanup sirf isi component ka listener hataata hai. Code ke paas comments bhi add kiye hain.
+
+ab meine ride CHat mien ek messagesEndRef karke element banaya jiski wajah se chat khulte hi end mein phoch jaaegi jaake dekhle 
+
+AB HUM BANAYEGE AGLI FUNCTIONALITY JOH KI HOGI PICKUP AND DROP FUNCTIONALITY
