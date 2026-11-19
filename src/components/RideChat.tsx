@@ -6,6 +6,7 @@ import { Send, Sparkles, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
+import { getSocketIo } from "@/lib/socket";
 
 type Messages = {
   bookingId: string;
@@ -37,6 +38,8 @@ const RideChat = ({ currentRole, bookingId, username, driverName }: any) => {
   const sendMessage = async () => {
     if (!text.trim()) return;
 
+    const socket=getSocketIo()
+
     try {
       const { data } = await axios.post("/api/chat/send", {
         bookingId,
@@ -51,6 +54,8 @@ const RideChat = ({ currentRole, bookingId, username, driverName }: any) => {
       setMessages((prev) => [...prev, newMessage]);
 
       setText("");
+
+      socket.emit("chat-message",data)
     } catch (error: any) {
       console.error(
         "Send Message Error:",
@@ -82,6 +87,32 @@ const RideChat = ({ currentRole, bookingId, username, driverName }: any) => {
     if(bookingId){
       getMessages()
     }
+  }, [bookingId]);
+
+  useEffect(() => {
+    if (!bookingId) return;
+
+    const socket = getSocketIo();
+    const joinChatRoom = () => {
+      socket.emit("join-room", { bookingId });
+    };
+    const handleMessage = (message: Messages) => {
+      if (String(message.bookingId) !== String(bookingId)) return;
+      setMessages((prev) => [...prev, message]);
+    };
+
+    // Chat khulne aur har reconnect par ride room join karo, kyunki reconnect ke baad rooms clear ho jaate hain.
+    socket.on("connect", joinChatRoom);
+    socket.on("chat-message-update", handleMessage);
+    if (socket.connected) {
+      joinChatRoom();
+    }
+
+    return () => {
+      socket.off("connect", joinChatRoom);
+      // Sirf is RideChat instance ka listener hatao; shared socket ke baaki listeners ko nahi.
+      socket.off("chat-message-update", handleMessage);
+    };
   }, [bookingId]);
 
   //ai-suggestions ki api ko bhi fetch krlete hai

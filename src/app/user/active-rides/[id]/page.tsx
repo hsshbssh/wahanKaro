@@ -329,7 +329,7 @@ const Page = () => {
                 canChat,
                 chatOpen,
                 onChatToggle,
-                currentRole: "driver",
+                currentRole: "user",
               }}
             />
           </div>

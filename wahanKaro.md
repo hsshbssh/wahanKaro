@@ -721,3 +721,14 @@ ab jab dono jagah se event emit krdiya hai toh inhe ek common place pe listen bh
 
 aage ka socket.io ki md mein dekh
 ab room se joh event emit kiya hai usse hamne user mein aur partner dono mein listen krliya jisse hume driver ki update location milegi
+
+ab humara real time mein driver ki location toh updated mil rhi hai
+but ab hume chat ko bhi real time mein update krna hai abhi refresh krne pr aarha hai
+
+iske liye rideChat mein jaake ek chat-message krke event emit kr sendMessage wali api mein 
+ab isse listen karlo socket ke index.js mein jaake room ke andr dekh waha pe
+ab waha pe meine isse listen krke room ke members ke liye event emit krdiya hai jisse hum ab ridechat mei alg se useffect banake waha listen krenge
+
+bhot bhot bhot issue face krna pada mujhereal time mei communicate krwane ke liye but mujhse nhi hua toh meine copilot se fix krwaya aur ye issue tha
+Pehle: chat component chat-message-update sunta tha, par chat khulne par room join nahi karta tha aur disconnect/reconnect ke baad dobara join nahi karta tha. Isliye server update bheje bhi, toh client room mein na ho sakta tha.
+Ab: chat khulte hi ride-${bookingId} room join hota hai; socket reconnect ho toh room dobara join hota hai. Listener booking ID bhi check karta hai, aur cleanup sirf isi component ka listener hataata hai. Code ke paas comments bhi add kiye hain.
