@@ -1,42 +1,107 @@
+
 import connectDb from "@/lib/db";
 import Booking from "@/model/booking.model";
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto"
+import crypto from "crypto";
+import { getServerSession } from "next-auth";
+import authOptions from "@/lib/auth";
 
-export const POST=async(req:NextRequest)=>{
-    try {
-        await connectDb()
-        const {bookingId,driverEnteredDropOtp}=await req.json()
-        const booking=await Booking.findById(bookingId)
-        if(!booking){
-            return NextResponse.json(
-                {success:false,message:"Booking not found."},
-                {status:500}
-            )
-        }
 
-        const hashedDriverEnteredDropOtp= crypto.createHmac("sha256",process.env.OTP_SECRET!).update(driverEnteredDropOtp).digest("hex")
+export const POST = async (req: NextRequest) => {
+  try {
+    await connectDb();
 
-        if(booking.pickUpOtpExpires < Date.now()){
-            return NextResponse.json(
-                {success:false,message:"PickUp Otp expired."},
-                {status:400}
-            )
-        }
-        if(booking.dropOtp===hashedDriverEnteredDropOtp){
-            booking.bookingStatus="completed"
-        }
-        
-        await booking.save()
-        return NextResponse.json(
-            {success:true,message:"PickUp Otp verified successfully"},
-            {status:200}
-        )
-        
-    } catch (error) {
-        return NextResponse.json(
-            {success:false,message:`PickUp Otp verification error ${error}`},
-            {status:500}
-        )
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
     }
-}
+
+    const { bookingId, driverEnteredDropOtp } = await req.json();
+
+    if (!bookingId || !driverEnteredDropOtp) {
+      return NextResponse.json(
+        { success: false, message: "Booking ID and OTP required" },
+        { status: 400 }
+      );
+    }
+
+    const booking = await Booking.findById(bookingId);
+
+    if (!booking) {
+      return NextResponse.json(
+        { success: false, message: "Booking not found" },
+        { status: 404 }
+      );
+    }
+
+    // Only assigned driver can verify drop OTP
+    if (booking.driver.toString() !== session.user.id) {
+      return NextResponse.json(
+        { success: false, message: "Not authorized" },
+        { status: 403 }
+      );
+    }
+
+    if (booking.bookingStatus !== "started") {
+      return NextResponse.json(
+        { success: false, message: "Ride is not in progress" },
+        { status: 400 }
+      );
+    }
+
+    if (
+      !booking.dropOtpExpires ||
+      booking.dropOtpExpires.getTime() < Date.now()
+    ) {
+      return NextResponse.json(
+        { success: false, message: "Drop OTP expired" },
+        { status: 400 }
+      );
+    }
+
+    const hashedDriverOtp = crypto
+      .createHmac("sha256", process.env.OTP_SECRET!)
+      .update(String(driverEnteredDropOtp))
+      .digest("hex");
+
+    const isValid = crypto.timingSafeEqual(
+      Buffer.from(booking.dropOtp),
+      Buffer.from(hashedDriverOtp)
+    );
+
+    if (!isValid) {
+      return NextResponse.json(
+        { success: false, message: "Incorrect drop OTP" },
+        { status: 400 }
+      );
+    }
+
+    booking.bookingStatus = "completed";
+
+    // Invalidate used OTP
+    booking.dropOtp = undefined;
+    booking.dropOtpExpires = undefined;
+
+    await booking.save();
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Drop OTP verified successfully",
+      },
+      { status: 200 }
+    );
+
+  } catch (error) {
+    console.log("Drop OTP Verify Error:", error);
+
+    return NextResponse.json(
+      { success: false, message: "Drop verification failed" },
+      { status: 500 }
+    );
+  }
+};

@@ -737,4 +737,4 @@ ab meine ride CHat mien ek messagesEndRef karke element banaya jiski wajah se ch
 
 AB HUM BANAYEGE AGLI FUNCTIONALITY JOH KI HOGI PICKUP AND DROP FUNCTIONALITY
 
-ek jagah fas gaya hu ki agr otp expire hogya ya regenerate krna hua otp toh kaise karwaunga 
+sabse pehle pickup aur drop otp 

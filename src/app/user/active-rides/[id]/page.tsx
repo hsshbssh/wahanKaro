@@ -128,6 +128,9 @@ const Page = () => {
   //otps set krwayenge
   const [pickUpOtp, setPickUpOtp] = useState("");
   const [dropOtp, setDropOtp] = useState("");
+  const [pickUpExpiresAt, setPickUpExpiresAt] = useState<string | null>(null);
+
+  const [dropExpiresAt, setDropExpiresAt] = useState<string | null>(null);
 
   const onChatToggle = () => {
     setChatOpen((prev) => !prev);
@@ -181,6 +184,32 @@ const Page = () => {
 
     getActiveRides();
   }, [id]);
+
+  //otp generate krane ka function
+  const generateOtp = async (type: "pickup" | "drop") => {
+    try {
+      const bookingId = activeBookings[0]?._id;
+
+      if (!bookingId) return;
+
+      const url =
+        type === "pickup" ? "/api/otp/pickup/create" : "/api/otp/drop/create";
+
+      const { data } = await axios.post(url, { bookingId });
+
+      if (data.success) {
+        if (type === "pickup") {
+          setPickUpOtp(data.pickUpotp);
+          setPickUpExpiresAt(data.expiresAt);
+        } else {
+          setDropOtp(data.dropOtp);
+          setDropExpiresAt(data.expiresAt);
+        }
+      }
+    } catch (error) {
+      console.log("OTP Generation Error:", error);
+    }
+  };
 
   const cfg = STATUS_LABEL[activeBookings[0]?.bookingStatus ?? "confirmed"];
   const paymentStatus =
@@ -237,31 +266,18 @@ const Page = () => {
 
   //fetching PickUpOtp and dropOtp
   useEffect(() => {
-    const fetchPickUpOtp = async () => {
-      try {
-        const { data } = await axios.post(
-          "/api/otp/pickup/create",
-          activeBookings[0]._id,
-        );
-        setPickUp(data);
-      } catch (error) {
-        console.log(`fetching PickUp Otp error ${error}`);
-      }
-    };
-    fetchPickUpOtp();
-  }, []);
+    const booking = activeBookings[0];
 
-  useEffect(() => {
-    const fetchDropOtp = async () => {
-      try {
-        const {data}=await axios.post('/api/otp/drop/create',activeBookings[0]._id)
-        setDropOtp(data)
-      } catch (error) {
-        console.log(`fetching Drop Otp error ${error}`)
-      }
-    };
-    fetchDropOtp
-  }, []);
+    if (!booking) return;
+
+    if (booking.bookingStatus === "confirmed" && !pickUpOtp) {
+      generateOtp("pickup");
+    }
+
+    if (booking.bookingStatus === "started" && !dropOtp) {
+      generateOtp("drop");
+    }
+  }, [activeBookings, pickUpOtp, dropOtp]);
 
   if (loading) {
     return (
@@ -365,6 +381,17 @@ const Page = () => {
                 currentRole: "user",
               }}
             />
+            
+          </div>
+          <div className="flex-1 overflow-y-auto min-h-0">
+            <UserOtpPanel
+              pickUpOtp={pickUpOtp}
+              dropOtp={dropOtp}
+              pickUpExpiresAt={pickUpExpiresAt}
+              dropExpiresAt={dropExpiresAt}
+              status={status}
+              onRegenerate={generateOtp}
+            />
           </div>
         </div>
       </motion.div>
@@ -438,7 +465,14 @@ const Page = () => {
             />
           </div>
           <div className="flex-1 overflow-y-auto min-h-0">
-            <UserOtpPanel pickUpOtp={""} dropOtp={""} />
+            <UserOtpPanel
+              pickUpOtp={pickUpOtp}
+              dropOtp={dropOtp}
+              pickUpExpiresAt={pickUpExpiresAt}
+              dropExpiresAt={dropExpiresAt}
+              status={status}
+              onRegenerate={generateOtp}
+            />
           </div>
         </motion.div>
       </div>
