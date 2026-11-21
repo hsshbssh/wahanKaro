@@ -29,7 +29,7 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    const booking = await Booking.findById(bookingId);
+    const booking = await Booking.findById(bookingId).populate("user");
 
     if (!booking) {
       return NextResponse.json(
@@ -38,17 +38,10 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    // Only assigned driver can verify pickup OTP
-    if (booking.driver.toString() !== session.user.id) {
-      return NextResponse.json(
-        { success: false, message: "Not authorized" },
-        { status: 403 }
-      );
-    }
 
-    if (booking.bookingStatus !== "confirmed") {
+    if (booking.pickUpOtp!=driverEnteredPickUpOtp) {
       return NextResponse.json(
-        { success: false, message: "Invalid ride status" },
+        { success: false, message: "Invalid PickUp Otp status" },
         { status: 400 }
       );
     }
@@ -59,23 +52,6 @@ export const POST = async (req: NextRequest) => {
     ) {
       return NextResponse.json(
         { success: false, message: "Pickup OTP expired" },
-        { status: 400 }
-      );
-    }
-
-    const hashedDriverOtp = crypto
-      .createHmac("sha256", process.env.OTP_SECRET!)
-      .update(String(driverEnteredPickUpOtp))
-      .digest("hex");
-
-    const isValid = crypto.timingSafeEqual(
-      Buffer.from(booking.pickUpOtp),
-      Buffer.from(hashedDriverOtp)
-    );
-
-    if (!isValid) {
-      return NextResponse.json(
-        { success: false, message: "Incorrect pickup OTP" },
         { status: 400 }
       );
     }

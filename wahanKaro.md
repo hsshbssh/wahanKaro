@@ -737,4 +737,13 @@ ab meine ride CHat mien ek messagesEndRef karke element banaya jiski wajah se ch
 
 AB HUM BANAYEGE AGLI FUNCTIONALITY JOH KI HOGI PICKUP AND DROP FUNCTIONALITY
 
-sabse pehle pickup aur drop otp 
+sabse pehele api mein jaake otp ke andr pickup aur drop banao fir dono ke andr create aur verify folder banao aur unke andr route.ts banao
+
+meine ab create aur verify dono apis bana di hai complete dono ke liye jaake dekhle
+ab chlte hai ui ke liye
+
+ab iske liye partner ki active rides page pe jaa aur kuch states bana pehle aur unhe dekh pehle aur fir iss page ke end mein jaake otp panel design krna chalu kar
+
+basically pehle hamne driver ke active ride mein ek button banaya hai ki Arrived at pickup karke jaise hi driver arrived at pickup karega waise hi create wali api call hogi aur user ke paas mail pe otp jaaega 
+
+ab pehle saari apis ko fetch krlete hai wahi partner ke page pe

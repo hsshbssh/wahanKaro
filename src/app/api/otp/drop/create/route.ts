@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { getServerSession } from "next-auth";
 import authOptions from "@/lib/auth";
+import { sendEmail } from "@/lib/sendMail";
 
 
 export const POST = async (req: NextRequest) => {
@@ -56,28 +57,42 @@ export const POST = async (req: NextRequest) => {
     // Generate new 6 digit OTP
     const dropOtp = crypto.randomInt(100000, 1000000).toString();
 
-    // Hash OTP
-    const hashedOtp = crypto
-      .createHmac("sha256", process.env.OTP_SECRET!)
-      .update(dropOtp)
-      .digest("hex");
-
     // Expiry after 5 minutes
     const expiresIn = new Date(Date.now() + 5 * 60 * 1000);
 
-    booking.dropOtp = hashedOtp;
+    booking.dropOtp = dropOtp;
     booking.dropOtpExpires = expiresIn;
 
     await booking.save();
 
+    if (booking.user.email) {
+      await sendEmail(
+        booking.user.email,
+        "Your Drop OTP - RYDEX",
+        `
+  <div style="font-family:sans-serif;padding:20px">
+      <h2>Ride OTP</h2>
+
+      <p>Your Drop OTP is:</p>
+
+      <h1 style="letter-spacing:6px">${dropOtp}</h1>
+
+      <p>This OTP is valid for 5 minutes.</p>
+
+      <p>Share this OTP with your driver to end the ride.</p>
+
+      <br/>
+
+      <b>WahanKaro</b>
+  </div>
+  `,
+      );
+    }
+
     return NextResponse.json(
-      {
-        success: true,
-        dropOtp,
-        expiresAt: expiresIn,
-      },
-      { status: 200 }
-    );
+      {success:true,message:"Pickup otp sent."},
+      {status:200}
+    )
 
   } catch (error) {
     console.log("Drop OTP Create Error:", error);

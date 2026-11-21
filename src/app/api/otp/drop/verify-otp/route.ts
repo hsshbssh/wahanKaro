@@ -29,7 +29,7 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    const booking = await Booking.findById(bookingId);
+    const booking = await Booking.findById(bookingId).populate("user");
 
     if (!booking) {
       return NextResponse.json(
@@ -46,9 +46,9 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    if (booking.bookingStatus !== "started") {
+    if (booking.dropotp!=driverEnteredDropOtp) {
       return NextResponse.json(
-        { success: false, message: "Ride is not in progress" },
+        { success: false, message: "Invalid Drop Otp" },
         { status: 400 }
       );
     }
@@ -59,23 +59,6 @@ export const POST = async (req: NextRequest) => {
     ) {
       return NextResponse.json(
         { success: false, message: "Drop OTP expired" },
-        { status: 400 }
-      );
-    }
-
-    const hashedDriverOtp = crypto
-      .createHmac("sha256", process.env.OTP_SECRET!)
-      .update(String(driverEnteredDropOtp))
-      .digest("hex");
-
-    const isValid = crypto.timingSafeEqual(
-      Buffer.from(booking.dropOtp),
-      Buffer.from(hashedDriverOtp)
-    );
-
-    if (!isValid) {
-      return NextResponse.json(
-        { success: false, message: "Incorrect drop OTP" },
         { status: 400 }
       );
     }
