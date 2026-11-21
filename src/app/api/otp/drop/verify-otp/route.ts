@@ -46,7 +46,7 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    if (booking.dropotp!=driverEnteredDropOtp) {
+    if (booking.dropOtp!=driverEnteredDropOtp) {
       return NextResponse.json(
         { success: false, message: "Invalid Drop Otp" },
         { status: 400 }

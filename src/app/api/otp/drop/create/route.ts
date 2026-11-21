@@ -30,20 +30,12 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    const booking = await Booking.findById(bookingId);
+    const booking = await Booking.findById(bookingId).populate("user");
 
     if (!booking) {
       return NextResponse.json(
         { success: false, message: "Booking not found" },
         { status: 404 }
-      );
-    }
-
-    // Only booking owner can generate drop OTP
-    if (booking.user.toString() !== session.user.id) {
-      return NextResponse.json(
-        { success: false, message: "Not authorized" },
-        { status: 403 }
       );
     }
 
@@ -90,7 +82,7 @@ export const POST = async (req: NextRequest) => {
     }
 
     return NextResponse.json(
-      {success:true,message:"Pickup otp sent."},
+      {success:true,message:"Drop otp sent."},
       {status:200}
     )
 
