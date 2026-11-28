@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+.leaflet-overlay-pane .pickup-route {
+  stroke-dasharray: 12 16 !important;
+}
